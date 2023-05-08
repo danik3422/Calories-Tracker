@@ -81,8 +81,16 @@ a {
   max-width: 155px;
 }
 
+.green {
+  background-color: #589e3d;
+}
+
+.orange {
+  background-color: #fd7f14;
+}
+
 .track {
-  width: 20%;
+  width: 0%;
   height: inherit;
   border-radius: inherit;
   background-color: #589e3d;
@@ -231,6 +239,7 @@ a {
   padding: 17px;
   animation: bounce-in 0.5s reverse ease-in both;
   display: none;
+  margin-bottom: 20px;
 }
 .form__card-form {
   display: flex;
@@ -247,6 +256,41 @@ a {
 }
 .form__card-data:focus {
   outline: 4px solid rgba(88, 158, 61, 0.4);
+}
+.form__card-item {
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.form__card-item:last-child {
+  margin-bottom: 0px;
+}
+.form__card-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.form__card-wrapper h4 {
+  font-size: 24px;
+}
+.form__card-wrapper span {
+  font-size: 40px;
+  color: #fff;
+  border-radius: 5px;
+  padding: 10px 20px;
+}
+.form__card-wrapper button {
+  background-color: #dd3549;
+  border-radius: 5px;
+  font-size: 14px;
+  border: none;
+  width: 30px;
+  height: 30px;
+  background-image: url(../assets/close-white.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
 }
 
 .active {
@@ -277,7 +321,7 @@ a {
 
 .modal {
   width: 31.125rem;
-  position: absolute;
+  position: fixed;
   top: 20%;
   left: 50%;
   transform: translateX(-50%);
@@ -342,4 +386,12 @@ a {
 }
 .modal__form input[type=submit]:hover {
   opacity: 0.8;
+}
+
+.visible {
+  display: block;
+}
+
+.danger {
+  background-color: #dd3549;
 }/*# sourceMappingURL=style.css.map */
