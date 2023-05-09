@@ -4,7 +4,6 @@ const backdrop = document.querySelector('.backdrop')
 const mealBtn = document.getElementById('meal')
 const workoutBtn = document.getElementById('workout')
 function closeHandler(e) {
-	e.preventDefault()
 	if (e.target.classList.contains('backdrop')) {
 		backdrop.classList.toggle('visible')
 	}

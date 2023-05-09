@@ -1,9 +1,9 @@
 class CalorieTracker {
 	constructor() {
-		this._calorieLimit = 2000
-		this._totalCalories = 0
-		this._meals = []
-		this._workouts = []
+		this._calorieLimit = Storage.getCaloriesLimit()
+		this._totalCalories = Storage.getTotalCalories()
+		this._meals = Storage.getMeals()
+		this._workouts = Storage.getWorkouts()
 
 		this._displayCaloriesTotal()
 		this._displayCaloriesLimit()
@@ -11,18 +11,23 @@ class CalorieTracker {
 		this._displayCaloriesBurned()
 		this._displayCaloriesRemaining()
 		this._displayCaloriesProgress()
+
+		document.getElementById('daily-form').value = this._calorieLimit
 	}
 	// Public Methods \\
 	addMeal(meal) {
-		this._meals.push(meal)
+		Storage.saveMeals(meal)
 		this._totalCalories += meal.calories
+		Storage.updateTotalCalories(this._totalCalories)
 		this._displayNewMeal(meal)
+		this._displayCaloriesConsumed()
 		this._render()
 	}
 
 	addWorkout(workout) {
-		this._workouts.push(workout)
+		Storage.saveWorkouts(workout)
 		this._totalCalories -= workout.calories
+		Storage.updateTotalCalories(this._totalCalories)
 		this._displayNewWorkout(workout)
 		this._render()
 	}
@@ -32,7 +37,9 @@ class CalorieTracker {
 		if (index !== -1) {
 			const meal = this._meals[index]
 			this._totalCalories -= meal.calories
+			Storage.updateTotalCalories(this._totalCalories)
 			this._meals.splice(index, 1)
+			Storage.removeMeal(id)
 			this._render()
 		}
 	}
@@ -42,9 +49,31 @@ class CalorieTracker {
 		if (index !== -1) {
 			const workout = this._workouts[index]
 			this._totalCalories += workout.calories
+			Storage.updateTotalCalories(this._totalCalories)
 			this._workouts.splice(index, 1)
+			Storage.removeWorkout(id)
 			this._render()
 		}
+	}
+
+	reset() {
+		this._totalCalories = 0
+		this._meals = []
+		this._workouts = []
+		Storage.clearAllData()
+		this._render()
+	}
+
+	setLimit(calorieLimit) {
+		this._calorieLimit = calorieLimit
+		this._displayCaloriesLimit()
+		Storage.setCaloriesLimit(calorieLimit)
+		this._render()
+	}
+
+	loadItems() {
+		this._meals.forEach((meal) => this._displayNewMeal(meal))
+		this._workouts.forEach((workout) => this._displayNewWorkout(workout))
 	}
 
 	// Private Methods \\
@@ -124,6 +153,7 @@ class CalorieTracker {
   `
 		workoutsEl.appendChild(workoutEl)
 	}
+
 	_render() {
 		this._displayCaloriesTotal()
 		this._displayCaloriesConsumed()
@@ -148,9 +178,100 @@ class Workout {
 	}
 }
 
+class Storage {
+	static getCaloriesLimit(defaultLimit = 2000) {
+		let calorieLimit
+		if (localStorage.getItem('calorieLimit') === null) {
+			calorieLimit = defaultLimit
+		} else {
+			calorieLimit = +localStorage.getItem('calorieLimit')
+		}
+		return calorieLimit
+	}
+
+	static setCaloriesLimit(calorieLimit) {
+		localStorage.setItem('calorieLimit', calorieLimit)
+	}
+
+	static getTotalCalories(defaultCalories = 0) {
+		let totalCalories
+		if (localStorage.getItem('totalCalories') === null) {
+			totalCalories = defaultCalories
+		} else {
+			totalCalories = +localStorage.getItem('totalCalories')
+		}
+		return totalCalories
+	}
+
+	static updateTotalCalories(totalCalories) {
+		localStorage.setItem('totalCalories', totalCalories)
+	}
+
+	static getMeals() {
+		let meals
+		if (localStorage.getItem('meals') === null) {
+			meals = []
+		} else {
+			meals = JSON.parse(localStorage.getItem('meals'))
+		}
+		return meals
+	}
+
+	static saveMeals(meal) {
+		let storage = Storage.getMeals()
+		storage.push(meal)
+		localStorage.setItem('meals', JSON.stringify(storage))
+	}
+
+	static removeMeal(id) {
+		let meals = Storage.getMeals()
+		meals.forEach((item, index) => {
+			if (item.id === id) {
+				meals.splice(index, 1)
+			}
+		})
+		localStorage.setItem('meals', JSON.stringify(meals))
+	}
+
+	static getWorkouts() {
+		let workouts
+		if (localStorage.getItem('workouts') === null) {
+			workouts = []
+		} else {
+			workouts = JSON.parse(localStorage.getItem('workouts'))
+		}
+		return workouts
+	}
+
+	static saveWorkouts(workout) {
+		let storage = Storage.getWorkouts()
+		storage.push(workout)
+		localStorage.setItem('workouts', JSON.stringify(storage))
+	}
+
+	static removeWorkout(id) {
+		let workouts = Storage.getWorkouts()
+		workouts.forEach((item, index) => {
+			if (item.id === id) {
+				workouts.splice(index, 1)
+			}
+		})
+		localStorage.setItem('workouts', JSON.stringify(workouts))
+	}
+
+	static clearAllData() {
+		localStorage.clear()
+	}
+}
+
 class App {
 	constructor() {
 		this._tracker = new CalorieTracker()
+		this._loadEventListeners()
+		this._tracker.loadItems()
+	}
+
+	_loadEventListeners() {
 		document
 			.getElementById('meal-form')
 			.addEventListener('submit', this._newItem.bind(this, 'meal'))
@@ -168,11 +289,19 @@ class App {
 
 		document
 			.getElementById('filter-meals')
-			.addEventListener('keyup', this._filterItems.bind(this, 'meals'))
+			.addEventListener('keyup', this._filterItems.bind(this, 'meal'))
 
 		document
 			.getElementById('filter-workouts')
 			.addEventListener('keyup', this._filterItems.bind(this, 'workout'))
+
+		document
+			.getElementById('reset')
+			.addEventListener('click', this._reset.bind(this))
+
+		document
+			.querySelector('.modal__form')
+			.addEventListener('submit', this._setLimit.bind(this))
 	}
 
 	_newItem(type, e) {
@@ -205,5 +334,41 @@ class App {
 			}
 		}
 	}
+
+	_filterItems(type, e) {
+		const text = e.target.value.toLowerCase()
+
+		document
+			.querySelectorAll(`#${type}-items .form__card-item`)
+			.forEach((item) => {
+				const name = item.firstElementChild.firstElementChild.textContent
+
+				if (name.toLowerCase().indexOf(text) !== -1) {
+					item.style.display = 'block'
+				} else {
+					item.style.display = 'none'
+				}
+			})
+	}
+	_reset() {
+		this._tracker.reset()
+		document.getElementById('filter-meals').innerHTML = ''
+		document.getElementById('filter-workouts').innerHTML = ''
+		document.getElementById('meal-items').innerHTML = ''
+		document.getElementById('workout-items').innerHTML = ''
+	}
+
+	_setLimit(e) {
+		e.preventDefault()
+		const limit = document.getElementById('daily-form')
+
+		if (limit.value === '') {
+			alert('Please enter correct limit')
+			return
+		}
+		this._tracker.setLimit(+limit.value)
+		limit.value = ''
+	}
 }
+
 const app = new App()

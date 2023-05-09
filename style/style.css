@@ -94,6 +94,7 @@ a {
   height: inherit;
   border-radius: inherit;
   background-color: #589e3d;
+  transition: 0.4s ease;
 }
 
 .header {
