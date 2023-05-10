@@ -309,12 +309,11 @@ class App {
 
 	_newItem(type, e) {
 		e.preventDefault()
-		const name = document.getElementById(`${type}-name`)
-		if (name.value.length >= 20) {
+		if (document.getElementById(`${type}-name`).value.length >= 20) {
 			alert('Name is too long')
 			return
 		}
-
+		const name = document.getElementById(`${type}-name`)
 		const calories = document.getElementById(`${type}-calories`)
 		if (type === 'meal') {
 			const meal = new Meal(name.value, Math.abs(+calories.value))
