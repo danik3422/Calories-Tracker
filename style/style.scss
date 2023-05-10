@@ -421,7 +421,7 @@
 
 @media (max-width: 576px) {
 	.modal {
-		width: 25rem;
+		width: 90%;
 	}
 	.btn {
 		font-size: 14px;
@@ -448,10 +448,7 @@
 	}
 }
 
-@media (max-width: 320px) {
-	.modal {
-		width: 90%;
-	}
+@media (max-width: 376px) {
 	.form__card__title {
 		font-size: 25px;
 	}
