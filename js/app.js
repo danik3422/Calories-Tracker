@@ -16,18 +16,19 @@ class CalorieTracker {
 	}
 	// Public Methods \\
 	addMeal(meal) {
-		Storage.saveMeals(meal)
+		this._meals.push(meal)
 		this._totalCalories += meal.calories
 		Storage.updateTotalCalories(this._totalCalories)
+		Storage.saveMeals(meal)
 		this._displayNewMeal(meal)
-		this._displayCaloriesConsumed()
 		this._render()
 	}
 
 	addWorkout(workout) {
-		Storage.saveWorkouts(workout)
+		this._workouts.push(workout)
 		this._totalCalories -= workout.calories
 		Storage.updateTotalCalories(this._totalCalories)
+		Storage.saveWorkouts(workout)
 		this._displayNewWorkout(workout)
 		this._render()
 	}
@@ -57,11 +58,13 @@ class CalorieTracker {
 	}
 
 	reset() {
-		this._totalCalories = 0
-		this._meals = []
-		this._workouts = []
-		Storage.clearAllData()
-		this._render()
+		if (confirm('Are you sure?')) {
+			this._totalCalories = 0
+			this._meals = []
+			this._workouts = []
+			Storage.clearAllData()
+			this._render()
+		}
 	}
 
 	setLimit(calorieLimit) {
@@ -309,10 +312,10 @@ class App {
 		const name = document.getElementById(`${type}-name`)
 		const calories = document.getElementById(`${type}-calories`)
 		if (type === 'meal') {
-			const meal = new Meal(name.value, +calories.value)
+			const meal = new Meal(name.value, Math.abs(+calories.value))
 			this._tracker.addMeal(meal)
 		} else {
-			const workout = new Workout(name.value, +calories.value)
+			const workout = new Workout(name.value, Math.abs(+calories.value))
 			this._tracker.addWorkout(workout)
 		}
 
@@ -362,12 +365,14 @@ class App {
 		e.preventDefault()
 		const limit = document.getElementById('daily-form')
 
-		if (limit.value === '') {
+		if (limit.value === '' || limit.value <= 0) {
 			alert('Please enter correct limit')
 			return
 		}
 		this._tracker.setLimit(+limit.value)
 		limit.value = ''
+		document.querySelector('.backdrop').classList.remove('visible')
+		document.body.style.overflow = 'auto'
 	}
 }
 

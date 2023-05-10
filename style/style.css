@@ -238,7 +238,6 @@ a {
   border: 1px solid lightgray;
   border-radius: 5px;
   padding: 17px;
-  animation: bounce-in 0.5s reverse ease-in both;
   display: none;
   margin-bottom: 20px;
 }
@@ -295,8 +294,8 @@ a {
 }
 
 .active {
-  animation: bounce-in 0.5s ease-out both;
   display: block;
+  animation: bounce-in 0.5s ease-out both;
 }
 
 @keyframes bounce-in {
@@ -318,6 +317,7 @@ a {
   height: 100vh;
   width: 100vw;
   background-color: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
 .modal {
@@ -389,10 +389,71 @@ a {
   opacity: 0.8;
 }
 
+.danger {
+  background-color: #dd3549;
+}
+
+@keyframes modal-open {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(100%);
+  }
+}
 .visible {
   display: block;
 }
 
-.danger {
-  background-color: #dd3549;
+@media (max-width: 768px) {
+  .calories__header {
+    flex-direction: column;
+  }
+  .calories__display {
+    width: 100%;
+  }
+  .calories__footer {
+    flex-direction: column;
+  }
+  .form__wrapper {
+    flex-direction: column;
+  }
+}
+@media (max-width: 576px) {
+  .modal {
+    width: 25rem;
+  }
+  .btn {
+    font-size: 14px;
+  }
+  .header__wrapper {
+    flex-direction: column;
+  }
+  .header__logo {
+    margin-bottom: 10px;
+  }
+  .form__card-wrapper span {
+    padding: 5px;
+  }
+  .form__card-header {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .form__card__title {
+    font-size: 30px;
+  }
+  .form__card__btn {
+    width: 100%;
+  }
+}
+@media (max-width: 320px) {
+  .modal {
+    width: 90%;
+  }
+  .form__card__title {
+    font-size: 25px;
+  }
+  .form__card-wrapper span {
+    font-size: 25px;
+  }
 }/*# sourceMappingURL=style.css.map */
